@@ -14,7 +14,6 @@ class _CameraPermissionScreenState extends State<CameraPermissionScreen> {
   String _status = "Aguardando solicitação...";
 
   Future<void> _requestCameraPermission() async {
-    // Solicita a permissão
     var status = await Permission.camera.request();
 
     setState(() {
@@ -79,13 +78,12 @@ class _AccelerometerScreenState extends State<AccelerometerScreen> {
   // Variáveis para armazenar os eixos
   double x = 0, y = 0, z = 0;
   
-  // Subscription para gerenciar a escuta do sensor
+ 
   StreamSubscription<AccelerometerEvent>? _subscription;
 
   @override
   void initState() {
     super.initState();
-    // Inicia a escuta do acelerômetro
     _subscription = accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
         x = event.x;
@@ -97,7 +95,7 @@ class _AccelerometerScreenState extends State<AccelerometerScreen> {
 
   @override
   void dispose() {
-    // É vital cancelar o subscription para evitar vazamento de memória
+   
     _subscription?.cancel();
     super.dispose();
   }
@@ -118,7 +116,7 @@ class _AccelerometerScreenState extends State<AccelerometerScreen> {
             Text("Mostrar valores X, Y e Z na tela."),
             SizedBox(height: 40),
             
-            // Exibição dos Valores
+          
             _buildSensorRow("Eixo X:", x),
             _buildSensorRow("Eixo Y:", y),
             _buildSensorRow("Eixo Z:", z),
@@ -174,13 +172,11 @@ class _ShakeDetectionScreenState extends State<ShakeDetectionScreen> {
   @override
   void initState() {
     super.initState();
-    // Escutando os eventos do acelerômetro
+   
     _subscription = accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
         _xAxis = event.x;
         
-        // Regra do Nível 3: event.x > 8
-        // Usamos .abs() para detectar o movimento brusco em ambas as direções do eixo X
         if (_xAxis.abs() > 8) {
           _triggerDetection();
         }
@@ -193,7 +189,7 @@ class _ShakeDetectionScreenState extends State<ShakeDetectionScreen> {
       _isMovementDetected = true;
     });
 
-    // Reseta o aviso após 1.5 segundos sem movimento brusco
+   
     _displayTimer?.cancel();
     _displayTimer = Timer(Duration(milliseconds: 1500), () {
       setState(() {
@@ -229,7 +225,7 @@ class _ShakeDetectionScreenState extends State<ShakeDetectionScreen> {
               
               SizedBox(height: 60),
               
-              // Área de Alerta
+             
               AnimatedContainer(
                 duration: Duration(milliseconds: 300),
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
@@ -277,8 +273,7 @@ class NotificationLevelScreen extends StatefulWidget {
 class _NotificationLevelScreenState extends State<NotificationLevelScreen> {
   final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
   StreamSubscription<AccelerometerEvent>? _subscription;
-  bool _canSendNotification = true; // Para evitar spam de notificações
-
+  bool _canSendNotification = true;
   @override
   void initState() {
     super.initState();
@@ -300,7 +295,7 @@ class _NotificationLevelScreenState extends State<NotificationLevelScreen> {
 
   void _startSensor() {
     _subscription = accelerometerEvents.listen((AccelerometerEvent event) {
-      // Regra de movimento (X > 8)
+     
       if (event.x.abs() > 8 && _canSendNotification) {
         _sendLocalNotification();
       }
@@ -326,7 +321,7 @@ class _NotificationLevelScreenState extends State<NotificationLevelScreen> {
       platformDetails,
     );
 
-    // Espera 5 segundos antes de permitir outra notificação
+   
     Timer(Duration(seconds: 5), () {
       if (mounted) setState(() => _canSendNotification = true);
     });
@@ -405,7 +400,7 @@ class _NotificationLevelScreenState extends State<NotificationLevelScreen> {
     _startSensor();
   }
 
-  // Inicialização das notificações
+  
   Future<void> _setupNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -419,7 +414,7 @@ class _NotificationLevelScreenState extends State<NotificationLevelScreen> {
 
   void _startSensor() {
     _subscription = accelerometerEvents.listen((AccelerometerEvent event) {
-      // Regra de movimento (X > 8)
+    
       if (event.x.abs() > 8 && _canSendNotification) {
         _sendLocalNotification();
       }
@@ -542,7 +537,7 @@ class _AntiTheftSystemState extends State<AntiTheftSystem> {
 
   void _startMonitoring() {
     _subscription = accelerometerEvents.listen((event) {
-      // Regra de detecção de movimento brusco
+     
       if (event.x.abs() > 8 || event.y.abs() > 8 || event.z.abs() > 12) {
         _triggerAlarm();
       }
@@ -550,7 +545,7 @@ class _AntiTheftSystemState extends State<AntiTheftSystem> {
   }
 
   void _triggerAlarm() async {
-    // 1. Regista o horário do evento
+   
     String timestamp = DateFormat('HH:mm:ss - dd/MM').format(DateTime.now());
     
     setState(() {
@@ -559,11 +554,11 @@ class _AntiTheftSystemState extends State<AntiTheftSystem> {
     });
     _subscription?.cancel();
 
-    // 2. Emite Notificação Local
+    
     const details = AndroidNotificationDetails('anti_furto', 'Alerta Seguranca', importance: Importance.max);
     await _notificationsPlugin.show(1, 'ALERTA ANTI-FURTO', 'O seu dispositivo foi movimentado!', const NotificationDetails(android: details));
 
-    // 3. Vibra o dispositivo
+
     if (await Vibration.hasVibrator() ?? false) {
       Vibration.vibrate(duration: 2000); // Vibra por 2 segundos
     }
